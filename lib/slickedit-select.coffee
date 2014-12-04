@@ -46,12 +46,15 @@ module.exports =
         if e.which == 0
           resetState()
 
-    contextMenu = (e) =>
-      if mouseStart == mouseEnd
-        return true
-      else
-        e.preventDefault()
-        return false
+    onMouseUp = (e) =>
+      if (e.which is mouse)
+         if mouseStart == mouseEnd
+           e.preventDefault()
+           atom.contextMenu.showForEvent(e)
+           return false
+         else
+           e.preventDefault()
+           return false
 
     # Hijack all the mouse events when selecting
     hijackMouseEvent = (e) =>
@@ -106,10 +109,10 @@ module.exports =
     # Subscribe to the various things
     @subscribe editorView, 'mousedown',   onMouseDown
     @subscribe editorView, 'mousemove',   onMouseMove
-    @subscribe editorView, 'mouseup',     hijackMouseEvent
+    @subscribe editorView, 'mouseup',     onMouseUp
     @subscribe editorView, 'mouseleave',  hijackMouseEvent
     @subscribe editorView, 'mouseenter',  hijackMouseEvent
-    @subscribe editorView, 'contextmenu', contextMenu
+    @subscribe editorView, 'contextmenu', hijackMouseEvent
     @subscribe editorView, 'focusout',    onFocusOut
 
 Subscriber.extend module.exports

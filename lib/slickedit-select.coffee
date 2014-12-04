@@ -81,7 +81,7 @@ module.exports =
       offset            = editorView.scrollView.offset()
       editorRelativeTop = pageY - offset.top + editorView.scrollTop()
       row               = Math.floor editorRelativeTop / editorView.lineHeight
-      column            = Math.round (pageX - offset.left) / columnWidth
+      column            = Math.round (pageX - offset.left + editorView.scrollLeft()) / columnWidth
       return {row: row, column: column}
 
     # Do the actual selecting

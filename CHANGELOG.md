@@ -1,3 +1,6 @@
+## 1.4.0
+* Integrated latest changes from bigfive's "sublime-style-column-selection" package to address then 1.0 deprecation issues.
+
 ## 1.3.0
 * Fixed an issue with selection when the editor was scrolled horizontally
 

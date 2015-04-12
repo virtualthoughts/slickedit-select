@@ -1,4 +1,3 @@
-{Subscriber} = require 'emissary'
 os = require 'os'
 
 mouse = 3
@@ -6,32 +5,32 @@ mouse = 3
 module.exports =
 
   activate: (state) ->
-    @subscribe atom.workspaceView.eachEditorView (editorView) =>
-      @_handleLoad editorView
+    atom.workspace.observeTextEditors (editor) =>
+      @_handleLoad editor
 
   deactivate: ->
     @unsubscribe()
 
-  _handleLoad: (editorView) ->
-    editor     = editorView.getEditor()
+  _handleLoad: (editor) ->
+    editorBuffer = editor.displayBuffer
+    editorElement = atom.views.getView editor
+    editorComponent = editorElement.component
 
     mouseStart  = null
     mouseEnd    = null
-    columnWidth = null
 
     resetState = =>
       mouseStart  = null
       mouseEnd    = null
-      columnWidth = null
 
     onMouseDown = (e) =>
       if mouseStart
         e.preventDefault()
         return false
+
       if (e.which is mouse)
         resetState()
-        columnWidth = calculateMonoSpacedCharacterWidth()
-        mouseStart  = overflowableScreenPositionFromMouseEvent(e)
+        mouseStart  = _screenPositionForMouseEvent(e)
         mouseEnd    = mouseStart
         e.preventDefault()
         return false
@@ -39,49 +38,42 @@ module.exports =
     onMouseMove = (e) =>
       if mouseStart
         if (e.which is mouse)
-          mouseEnd = overflowableScreenPositionFromMouseEvent(e)
+          mouseEnd = _screenPositionForMouseEvent(e)
           selectBoxAroundCursors()
           e.preventDefault()
           return false
         if e.which == 0
           resetState()
 
-    onMouseUp = (e) =>
-      if (e.which is mouse)
-         if mouseStart == mouseEnd
-           e.preventDefault()
-           atom.contextMenu.showForEvent(e)
-           return false
-         else
-           e.preventDefault()
-           return false
+    contextMenu = (e) =>
+      if mouseStart == mouseEnd
+        return true
+      else
+        e.preventDefault()
+        e.stopPropagation()
+        return false
 
     # Hijack all the mouse events when selecting
-    hijackMouseEvent = (e) =>
+    hikackMouseEvent = (e) =>
       if mouseStart
         e.preventDefault()
         return false
 
-    onFocusOut = (e) =>
+    onBlur = (e) =>
       resetState()
 
-    # Create a span with an x in it and measure its width then remove it
-    calculateMonoSpacedCharacterWidth = =>
-      span = document.createElement 'span'
-      span.appendChild document.createTextNode('x')
-      editorView.scrollView.append span
-      size = span.offsetWidth
-      span.remove()
-      return size
-
-    # I had to create my own version of editorView.screenPositionFromMouseEvent
-    # The editorView one doesnt quite do what I need
-    overflowableScreenPositionFromMouseEvent = (e) =>
-      { pageX, pageY }  = e
-      offset            = editorView.scrollView.offset()
-      editorRelativeTop = pageY - offset.top + editorView.scrollTop()
-      row               = Math.floor editorRelativeTop / editorView.lineHeight
-      column            = Math.round (pageX - offset.left + editorView.scrollLeft()) / columnWidth
+    # I had to create my own version of editorComponent.screenPositionFromMouseEvent
+    # The editorBuffer one doesnt quite do what I need
+    _screenPositionForMouseEvent = (e) =>
+      pixelPosition    = editorComponent.pixelPositionForMouseEvent(e)
+      targetTop        = pixelPosition.top
+      targetLeft       = pixelPosition.left
+      defaultCharWidth = editorBuffer.defaultCharWidth
+      row              = Math.floor(targetTop / editorBuffer.getLineHeightInPixels())
+      targetLeft       = Infinity if row > editorBuffer.getLastRow()
+      row              = Math.min(row, editorBuffer.getLastRow())
+      row              = Math.max(0, row)
+      column           = Math.round (targetLeft) / defaultCharWidth
       return {row: row, column: column}
 
     # Do the actual selecting
@@ -103,16 +95,14 @@ module.exports =
         # Otherwise select all the 0 length ranges
         if rangesWithLength.length
           editor.setSelectedBufferRanges rangesWithLength
-        else
+        else if allRanges.length
           editor.setSelectedBufferRanges allRanges
 
     # Subscribe to the various things
-    @subscribe editorView, 'mousedown',   onMouseDown
-    @subscribe editorView, 'mousemove',   onMouseMove
-    @subscribe editorView, 'mouseup',     onMouseUp
-    @subscribe editorView, 'mouseleave',  hijackMouseEvent
-    @subscribe editorView, 'mouseenter',  hijackMouseEvent
-    @subscribe editorView, 'contextmenu', hijackMouseEvent
-    @subscribe editorView, 'focusout',    onFocusOut
-
-Subscriber.extend module.exports
+    editorElement.onmousedown   = onMouseDown
+    editorElement.onmousemove   = onMouseMove
+    editorElement.onmouseup     = hikackMouseEvent
+    editorElement.onmouseleave  = hikackMouseEvent
+    editorElement.onmouseenter  = hikackMouseEvent
+    editorElement.oncontextmenu = contextMenu
+    editorElement.onblur        = onBlur

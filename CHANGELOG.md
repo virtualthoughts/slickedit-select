@@ -1,3 +1,6 @@
+## 1.5.0
+* Reapplied the fixes from version 1.2 so that the plugin again works in linux.
+
 ## 1.4.0
 * Integrated latest changes from bigfive's "sublime-style-column-selection" package to address then 1.0 deprecation issues.
 

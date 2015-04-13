@@ -45,18 +45,25 @@ module.exports =
         if e.which == 0
           resetState()
 
-    contextMenu = (e) =>
-      if mouseStart == mouseEnd
-        return true
+    onMouseUp = (e) =>
+      if (e.which is mouse)
+         if mouseStart == mouseEnd
+            e.preventDefault()
+            e.stopPropagation()
+            atom.contextMenu.showForEvent(e)
+            return false
+         else
+            e.preventDefault()
+            e.stopPropagation()
+            return false
       else
-        e.preventDefault()
-        e.stopPropagation()
-        return false
+         return true
 
     # Hijack all the mouse events when selecting
     hikackMouseEvent = (e) =>
       if mouseStart
         e.preventDefault()
+        e.stopPropagation()
         return false
 
     onBlur = (e) =>
@@ -101,8 +108,8 @@ module.exports =
     # Subscribe to the various things
     editorElement.onmousedown   = onMouseDown
     editorElement.onmousemove   = onMouseMove
-    editorElement.onmouseup     = hikackMouseEvent
+    editorElement.onmouseup     = onMouseUp
     editorElement.onmouseleave  = hikackMouseEvent
     editorElement.onmouseenter  = hikackMouseEvent
-    editorElement.oncontextmenu = contextMenu
+    editorElement.oncontextmenu = hikackMouseEvent
     editorElement.onblur        = onBlur

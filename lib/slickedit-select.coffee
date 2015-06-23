@@ -60,7 +60,7 @@ module.exports =
          return true
 
     # Hijack all the mouse events when selecting
-    hikackMouseEvent = (e) =>
+    hijackMouseEvent = (e) =>
       if mouseStart
         e.preventDefault()
         e.stopPropagation()
@@ -109,7 +109,7 @@ module.exports =
     editorElement.onmousedown   = onMouseDown
     editorElement.onmousemove   = onMouseMove
     editorElement.onmouseup     = onMouseUp
-    editorElement.onmouseleave  = hikackMouseEvent
-    editorElement.onmouseenter  = hikackMouseEvent
-    editorElement.oncontextmenu = hikackMouseEvent
+    editorElement.onmouseleave  = hijackMouseEvent
+    editorElement.onmouseenter  = hijackMouseEvent
+    editorElement.oncontextmenu = hijackMouseEvent
     editorElement.onblur        = onBlur

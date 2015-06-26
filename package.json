@@ -1,7 +1,7 @@
 {
   "name": "slickedit-select",
   "main": "./lib/slickedit-select",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "description": "Enable Slickedit style 'Column Selection'. Just highlight using right mouse button instead of left mouse button.  Note: If the mouse doesn't move the context menu will still show.",
   "repository": {
     "type": "git",

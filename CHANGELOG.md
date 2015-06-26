@@ -1,3 +1,6 @@
+## 1.6.0
+* The ability to make multiple column selections by holding down the control key. Thanks to purdeaandrei for the pull request.
+
 ## 1.5.0
 * Reapplied the fixes from version 1.2 so that the plugin again works in linux.
 

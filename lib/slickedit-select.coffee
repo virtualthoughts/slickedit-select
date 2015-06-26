@@ -18,6 +18,7 @@ module.exports =
 
     mouseStart  = null
     mouseEnd    = null
+    previousRanges = null
 
     resetState = =>
       mouseStart  = null
@@ -30,6 +31,10 @@ module.exports =
 
       if (e.which is mouse)
         resetState()
+        if e.ctrlKey
+          previousRanges = editor.getSelectedBufferRanges()
+        else
+          previousRanges = null
         mouseStart  = _screenPositionForMouseEvent(e)
         mouseEnd    = mouseStart
         e.preventDefault()
@@ -60,7 +65,7 @@ module.exports =
          return true
 
     # Hijack all the mouse events when selecting
-    hikackMouseEvent = (e) =>
+    hijackMouseEvent = (e) =>
       if mouseStart
         e.preventDefault()
         e.stopPropagation()
@@ -87,6 +92,8 @@ module.exports =
     selectBoxAroundCursors = =>
       if mouseStart and mouseEnd
         allRanges = []
+        if previousRanges
+          allRanges = previousRanges
         rangesWithLength = []
 
         for row in [mouseStart.row..mouseEnd.row]
@@ -95,6 +102,8 @@ module.exports =
           range = editor.bufferRangeForScreenRange [[row, mouseStart.column], [row, mouseEnd.column]]
 
           allRanges.push range
+
+        for range in allRanges
           if editor.getTextInBufferRange(range).length > 0
             rangesWithLength.push range
 
@@ -109,7 +118,7 @@ module.exports =
     editorElement.onmousedown   = onMouseDown
     editorElement.onmousemove   = onMouseMove
     editorElement.onmouseup     = onMouseUp
-    editorElement.onmouseleave  = hikackMouseEvent
-    editorElement.onmouseenter  = hikackMouseEvent
-    editorElement.oncontextmenu = hikackMouseEvent
+    editorElement.onmouseleave  = hijackMouseEvent
+    editorElement.onmouseenter  = hijackMouseEvent
+    editorElement.oncontextmenu = hijackMouseEvent
     editorElement.onblur        = onBlur

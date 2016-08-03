@@ -1,3 +1,6 @@
+## 1.6.1
+* Merged in a fix from mbertschler to make things compatible with Atom v1.9.  Thanks mbertschler!
+
 ## 1.6.0
 * The ability to make multiple column selections by holding down the control key. Thanks to purdeaandrei for the pull request.
 

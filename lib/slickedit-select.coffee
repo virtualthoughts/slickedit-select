@@ -12,7 +12,7 @@ module.exports =
     @unsubscribe()
 
   _handleLoad: (editor) ->
-    editorBuffer = editor.displayBuffer
+    editorBuffer = editor
     editorElement = atom.views.getView editor
     editorComponent = editorElement.component
 

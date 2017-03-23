@@ -1,3 +1,6 @@
+## 1.6.2
+* Fixed a deprecation.
+
 ## 1.6.1
 * Merged in a fix from mbertschler to make things compatible with Atom v1.9.  Thanks mbertschler!
 
